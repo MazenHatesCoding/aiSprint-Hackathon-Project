@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Admin Dashboard — Keheilan</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#0a110c;--surface:#1a2b1e;--surface2:#223328;--border:rgba(74,222,128,.1);--accent:#4ade80;--accent2:#86efac;--muted:#6b7c70;--text:#e8f0e9;--text2:#a8bfac;--danger:#f87171;--warning:#fbbf24;--radius:6px;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;}
+
+.sidebar{width:240px;min-height:100vh;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;}
+.sidebar-logo{padding:24px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.logo-mark{width:32px;height:32px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-weight:700;color:var(--bg);font-size:14px;flex-shrink:0;}
+.logo-name{font-family:'Playfair Display',serif;font-size:16px;font-weight:600;}
+.sidebar-role{padding:12px 20px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--danger);border-bottom:1px solid var(--border);}
+nav{flex:1;padding:12px 0;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:11px 20px;font-size:13px;color:var(--text2);cursor:pointer;transition:.15s;border-left:2px solid transparent;}
+.nav-item:hover{color:var(--text);background:rgba(255,255,255,.03);}
+.nav-item.active{color:var(--accent);border-left-color:var(--accent);background:rgba(74,222,128,.05);}
+.sidebar-bottom{padding:16px 20px;border-top:1px solid var(--border);}
+.user-chip{display:flex;align-items:center;gap:10px;}
+.user-avatar{width:32px;height:32px;background:rgba(248,113,113,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:var(--danger);flex-shrink:0;}
+.user-name{font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.user-email{font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.btn-logout{display:block;width:100%;margin-top:10px;padding:8px;background:transparent;border:1px solid var(--border);border-radius:var(--radius);color:var(--muted);font-size:12px;cursor:pointer;transition:.2s;}
+.btn-logout:hover{border-color:var(--danger);color:var(--danger);}
+
+.main{flex:1;overflow:auto;display:flex;flex-direction:column;}
+.topbar{padding:20px 36px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.page-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:600;}
+.page-sub{font-size:13px;color:var(--muted);margin-top:2px;}
+.content{padding:32px 36px;flex:1;}
+
+.section{display:none;animation:fadeIn .25s ease;}
+.section.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.stats-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:32px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px;}
+.stat-label{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+.stat-value{font-family:'DM Mono',monospace;font-size:24px;color:var(--accent);}
+.stat-sub{font-size:11px;color:var(--text2);margin-top:4px;}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px;margin-bottom:24px;}
+.card-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:600;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--border);}
+
+/* Table */
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{text-align:left;padding:10px 14px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:500;border-bottom:1px solid var(--border);}
+td{padding:12px 14px;border-bottom:1px solid rgba(74,222,128,.04);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(255,255,255,.02);}
+
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500;}
+.badge-green{background:rgba(74,222,128,.12);color:var(--accent);}
+.badge-yellow{background:rgba(251,191,36,.12);color:var(--warning);}
+.badge-red{background:rgba(248,113,113,.12);color:var(--danger);}
+.badge-muted{background:rgba(255,255,255,.06);color:var(--muted);}
+.badge-blue{background:rgba(96,165,250,.12);color:#60a5fa;}
+
+.btn-xs{padding:5px 12px;border-radius:4px;font-size:11px;font-weight:500;cursor:pointer;border:none;transition:.2s;white-space:nowrap;}
+.btn-approve{background:rgba(74,222,128,.12);color:var(--accent);}
+.btn-approve:hover{background:rgba(74,222,128,.2);}
+.btn-flag{background:rgba(248,113,113,.1);color:var(--danger);}
+.btn-flag:hover{background:rgba(248,113,113,.2);}
+.btn-active{background:rgba(74,222,128,.12);color:var(--accent);}
+.btn-active:hover{background:rgba(74,222,128,.2);}
+.btn-suspend{background:rgba(251,191,36,.1);color:var(--warning);}
+.btn-suspend:hover{background:rgba(251,191,36,.2);}
+.btn-close{background:rgba(255,255,255,.06);color:var(--muted);}
+.btn-close:hover{background:rgba(255,255,255,.1);}
+.actions-group{display:flex;gap:6px;flex-wrap:wrap;}
+
+.loading{display:flex;flex-direction:column;align-items:center;gap:12px;padding:40px;}
+.spinner{width:28px;height:28px;border:2px solid rgba(74,222,128,.12);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading p{font-size:13px;color:var(--muted);}
+.empty-state{text-align:center;padding:48px 20px;color:var(--muted);}
+.empty-state p{font-size:14px;margin-top:8px;font-weight:300;}
+
+/* Pending highlight */
+tr.pending-row td{background:rgba(251,191,36,.03);}
+
+/* Filter bar */
+.filter-bar{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
+.filter-btn{padding:7px 16px;border-radius:20px;font-size:12px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;transition:.2s;}
+.filter-btn:hover{border-color:var(--accent);color:var(--accent);}
+.filter-btn.active{background:rgba(74,222,128,.1);border-color:var(--accent);color:var(--accent);}
+
+/* Risk indicator */
+.risk-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;}
+.risk-dot.low{background:var(--accent);}
+.risk-dot.medium{background:var(--warning);}
+.risk-dot.high{background:var(--danger);}
+.risk-dot.none{background:var(--muted);}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">K</div>
+    <div class="logo-name">Keheilan</div>
+  </div>
+  <div class="sidebar-role">Admin</div>
+  <nav>
+    <div class="nav-item active" onclick="showSection('overview')">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+      Platform Stats
+    </div>
+    <div class="nav-item" onclick="showSection('farms')">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M3 7l9-4 9 4M3 7v10l9 4 9-4V7M3 7l9 4 9-4M12 11v10"/></svg>
+      All Farms
+    </div>
+    <div class="nav-item" onclick="showSection('users')">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+      All Users
+    </div>
+    <div class="nav-item" onclick="showSection('investments')">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      Investments
+    </div>
+  </nav>
+  <div class="sidebar-bottom">
+    <div class="user-chip">
+      <div class="user-avatar" id="user-avatar">A</div>
+      <div>
+        <div class="user-name" id="user-name">Admin</div>
+        <div class="user-email" id="user-email"></div>
+      </div>
+    </div>
+    <button class="btn-logout" onclick="logout()">Sign Out</button>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div>
+      <div class="page-title" id="page-title">Platform Statistics</div>
+      <div class="page-sub" id="page-sub">Live overview of Keheilan platform</div>
+    </div>
+    <button onclick="refreshAll()" style="padding:8px 18px;border-radius:var(--radius);background:transparent;border:1px solid var(--border);color:var(--text2);font-size:12px;cursor:pointer;transition:.2s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">↻ Refresh</button>
+  </div>
+  <div class="content">
+
+    <!-- OVERVIEW / STATS -->
+    <div class="section active" id="sec-overview">
+      <div class="stats-strip">
+        <div class="stat-card">
+          <div class="stat-label">Total Users</div>
+          <div class="stat-value" id="st-users">—</div>
+          <div class="stat-sub">registered</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Farms</div>
+          <div class="stat-value" id="st-farms">—</div>
+          <div class="stat-sub">all statuses</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Pending Review</div>
+          <div class="stat-value" id="st-pending" style="color:var(--warning)">—</div>
+          <div class="stat-sub">need action</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Invested</div>
+          <div class="stat-value" id="st-invested">—</div>
+          <div class="stat-sub">USD committed</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Active Investments</div>
+          <div class="stat-value" id="st-active-inv">—</div>
+          <div class="stat-sub">positions open</div>
+        </div>
+      </div>
+
+      <!-- Pending farms requiring action -->
+      <div class="card">
+        <div class="card-title">🕐 Pending Farm Approvals</div>
+        <div id="pending-farms-list">
+          <div class="loading"><div class="spinner"></div><p>Loading…</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALL FARMS -->
+    <div class="section" id="sec-farms">
+      <div class="card">
+        <div class="card-title">All Farm Listings</div>
+        <div class="filter-bar">
+          <button class="filter-btn active" onclick="filterFarms('all', this)">All</button>
+          <button class="filter-btn" onclick="filterFarms('pending', this)">Pending</button>
+          <button class="filter-btn" onclick="filterFarms('approved', this)">Approved</button>
+          <button class="filter-btn" onclick="filterFarms('active', this)">Active</button>
+          <button class="filter-btn" onclick="filterFarms('flagged', this)">Flagged</button>
+          <button class="filter-btn" onclick="filterFarms('closed', this)">Closed</button>
+        </div>
+        <div class="table-wrap" id="farms-table">
+          <div class="loading"><div class="spinner"></div><p>Loading farms…</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALL USERS -->
+    <div class="section" id="sec-users">
+      <div class="card">
+        <div class="card-title">All Registered Users</div>
+        <div class="table-wrap" id="users-table">
+          <div class="loading"><div class="spinner"></div><p>Loading users…</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INVESTMENTS -->
+    <div class="section" id="sec-investments">
+      <div class="card">
+        <div class="card-title">All Investments</div>
+        <div class="table-wrap" id="investments-table">
+          <div class="loading"><div class="spinner"></div><p>Loading investments…</p></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const API = '';
+const token = localStorage.getItem('kh_token');
+const userStr = localStorage.getItem('kh_user');
+if (!token) location.href = '/login';
+
+const user = userStr ? JSON.parse(userStr) : {};
+if (user.role && user.role !== 'admin') location.href = '/' + user.role;
+
+document.getElementById('user-name').textContent  = user.full_name || 'Admin';
+document.getElementById('user-email').textContent = user.email || '';
+document.getElementById('user-avatar').textContent = (user.full_name || 'A')[0].toUpperCase();
+
+let allFarmsData = [];
+let currentFarmFilter = 'all';
+
+function headers() {
+  return {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token};
+}
+function logout() { localStorage.clear(); location.href = '/login'; }
+
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  event.currentTarget.classList.add('active');
+  const titles = {
+    overview:    ['Platform Statistics', 'Live overview of Keheilan platform'],
+    farms:       ['All Farms', 'Review, approve, and manage farm listings'],
+    users:       ['All Users', 'Manage investor and operator accounts'],
+    investments: ['All Investments', 'Platform-wide investment activity']
+  };
+  const t = titles[id] || ['Admin', ''];
+  document.getElementById('page-title').textContent = t[0];
+  document.getElementById('page-sub').textContent   = t[1];
+
+  if (id === 'overview')    loadOverview();
+  if (id === 'farms')       loadAllFarms();
+  if (id === 'users')       loadAllUsers();
+  if (id === 'investments') loadAllInvestments();
+}
+
+function refreshAll() {
+  const activeSection = document.querySelector('.section.active');
+  if (activeSection) {
+    const id = activeSection.id.replace('sec-', '');
+    if (id === 'overview')    loadOverview();
+    if (id === 'farms')       loadAllFarms();
+    if (id === 'users')       loadAllUsers();
+    if (id === 'investments') loadAllInvestments();
+  }
+}
+
+// ── OVERVIEW ──────────────────────────────────────────────────────────────
+async function loadOverview() {
+  try {
+    const [statsRes, farmsRes] = await Promise.all([
+      fetch(`${API}/api/admin/stats`, {headers: headers()}),
+      fetch(`${API}/api/farms`, {headers: headers()})
+    ]);
+    const stats = (await statsRes.json()).data || {};
+    const farms = (await farmsRes.json()).data || [];
+
+    document.getElementById('st-users').textContent      = stats.total_users ?? '—';
+    document.getElementById('st-farms').textContent      = stats.total_farms ?? '—';
+    document.getElementById('st-pending').textContent    = stats.pending_farms ?? '—';
+    document.getElementById('st-invested').textContent   = stats.total_invested_usd ? '$' + stats.total_invested_usd.toLocaleString() : '$0';
+    document.getElementById('st-active-inv').textContent = stats.active_investments ?? '—';
+
+    const pending = farms.filter(f => f.status === 'pending');
+    const el = document.getElementById('pending-farms-list');
+    if (!pending.length) {
+      el.innerHTML = '<div class="empty-state"><p>✅ No farms pending review. All caught up!</p></div>';
+      return;
+    }
+    el.innerHTML = `<table>
+      <thead><tr><th>Farm</th><th>Operator</th><th>Crop</th><th>Target</th><th>ROI</th><th>AI Risk</th><th>Actions</th></tr></thead>
+      <tbody>${pending.map(f => farmRow(f)).join('')}</tbody>
+    </table>`;
+  } catch(e) { console.error(e); }
+}
+
+// ── ALL FARMS ─────────────────────────────────────────────────────────────
+async function loadAllFarms() {
+  const el = document.getElementById('farms-table');
+  el.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading…</p></div>';
+  try {
+    const res  = await fetch(`${API}/api/farms`, {headers: headers()});
+    const data = await res.json();
+    allFarmsData = data.data || [];
+    renderFarmsTable(allFarmsData);
+  } catch(e) {
+    el.innerHTML = '<div class="empty-state"><p>Error loading farms.</p></div>';
+  }
+}
+
+function filterFarms(status, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentFarmFilter = status;
+  const filtered = status === 'all' ? allFarmsData : allFarmsData.filter(f => f.status === status);
+  renderFarmsTable(filtered);
+}
+
+function renderFarmsTable(farms) {
+  const el = document.getElementById('farms-table');
+  if (!farms.length) {
+    el.innerHTML = '<div class="empty-state"><p>No farms match this filter.</p></div>';
+    return;
+  }
+  el.innerHTML = `<table>
+    <thead><tr><th>Farm</th><th>Operator</th><th>Crop</th><th>Size</th><th>Target</th><th>Raised</th><th>ROI</th><th>AI Risk</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>${farms.map(f => farmRow(f, true)).join('')}</tbody>
+  </table>`;
+}
+
+function statusBadge(s) {
+  const map = {pending:'badge-yellow',approved:'badge-green',active:'badge-green',closed:'badge-muted',flagged:'badge-red'};
+  return `<span class="badge ${map[s]||'badge-muted'}">${s}</span>`;
+}
+
+function riskBadge(f) {
+  if (!f.risk_label) return '<span class="badge badge-muted">unscored</span>';
+  const map = {Low:'badge-green', Medium:'badge-yellow', High:'badge-red'};
+  const dot = f.risk_label.toLowerCase();
+  return `<span class="badge ${map[f.risk_label]||'badge-muted'}"><span class="risk-dot ${dot}"></span>${f.risk_label}</span>`;
+}
+
+function farmRow(f, showStatus=false) {
+  const pct = f.target_raise > 0 ? Math.min(100, Math.round((f.raised_so_far / f.target_raise) * 100)) : 0;
+  return `<tr class="${f.status==='pending'?'pending-row':''}">
+    <td><div style="font-weight:500;">${f.name}</div><div style="font-size:11px;color:var(--muted)">${f.location}</div></td>
+    <td>${f.operator_name || '—'}</td>
+    <td>${f.crop_type}</td>
+    <td style="font-family:'DM Mono',monospace">${f.size_feddan}f</td>
+    <td style="font-family:'DM Mono',monospace">$${f.target_raise.toLocaleString()}</td>
+    <td style="font-family:'DM Mono',monospace">${pct}%</td>
+    <td style="font-family:'DM Mono',monospace;color:var(--accent)">${f.expected_roi}%</td>
+    <td>${riskBadge(f)}</td>
+    ${showStatus ? `<td>${statusBadge(f.status)}</td>` : ''}
+    <td>
+      <div class="actions-group">
+        ${f.status === 'pending' ? `
+          <button class="btn-xs btn-approve" onclick="setFarmStatus(${f.id},'approved',this)">Approve</button>
+          <button class="btn-xs btn-flag"    onclick="setFarmStatus(${f.id},'flagged',this)">Flag</button>` : ''}
+        ${f.status === 'approved' ? `
+          <button class="btn-xs btn-active" onclick="setFarmStatus(${f.id},'active',this)">Set Active</button>
+          <button class="btn-xs btn-flag"   onclick="setFarmStatus(${f.id},'flagged',this)">Flag</button>` : ''}
+        ${f.status === 'active' ? `
+          <button class="btn-xs btn-close" onclick="setFarmStatus(${f.id},'closed',this)">Close</button>
+          <button class="btn-xs btn-flag"  onclick="setFarmStatus(${f.id},'flagged',this)">Flag</button>` : ''}
+        ${f.status === 'flagged' ? `
+          <button class="btn-xs btn-approve" onclick="setFarmStatus(${f.id},'pending',this)">Restore</button>` : ''}
+        ${f.status === 'closed' ? `<span style="font-size:11px;color:var(--muted)">Closed</span>` : ''}
+      </div>
+    </td>
+  </tr>`;
+}
+
+async function setFarmStatus(farmId, status, btn) {
+  const original = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = '…';
+  try {
+    const res = await fetch(`${API}/api/farms/${farmId}/status`, {
+      method: 'PATCH', headers: headers(),
+      body: JSON.stringify({status})
+    });
+    if (!res.ok) throw new Error('Failed');
+    // Reload
+    const activeSection = document.querySelector('.section.active').id;
+    if (activeSection === 'sec-overview') loadOverview();
+    else loadAllFarms();
+  } catch(e) {
+    btn.disabled = false;
+    btn.textContent = original;
+    alert('Error: ' + e.message);
+  }
+}
+
+// ── ALL USERS ─────────────────────────────────────────────────────────────
+async function loadAllUsers() {
+  const el = document.getElementById('users-table');
+  el.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading…</p></div>';
+  try {
+    const res  = await fetch(`${API}/api/admin/users`, {headers: headers()});
+    const data = await res.json();
+    const users = data.data || [];
+    if (!users.length) {
+      el.innerHTML = '<div class="empty-state"><p>No users found.</p></div>';
+      return;
+    }
+    el.innerHTML = `<table>
+      <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Joined</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>${users.map(u => userRow(u)).join('')}</tbody>
+    </table>`;
+  } catch(e) {
+    el.innerHTML = '<div class="empty-state"><p>Error loading users.</p></div>';
+  }
+}
+
+function roleBadge(role) {
+  const map = {investor:'badge-blue', operator:'badge-yellow', admin:'badge-red'};
+  return `<span class="badge ${map[role]||'badge-muted'}">${role}</span>`;
+}
+
+function userRow(u) {
+  return `<tr>
+    <td style="font-weight:500;">${u.full_name}</td>
+    <td style="font-size:12px;color:var(--text2)">${u.email}</td>
+    <td>${roleBadge(u.role)}</td>
+    <td style="font-size:12px;color:var(--muted)">${u.created_at.slice(0,10)}</td>
+    <td>${u.is_active ? '<span class="badge badge-green">Active</span>' : '<span class="badge badge-red">Suspended</span>'}</td>
+    <td>
+      ${u.role !== 'admin' ? `
+        ${u.is_active
+          ? `<button class="btn-xs btn-suspend" onclick="toggleUser(${u.id}, false, this)">Suspend</button>`
+          : `<button class="btn-xs btn-approve" onclick="toggleUser(${u.id}, true, this)">Restore</button>`
+        }` : '<span style="font-size:11px;color:var(--muted)">Protected</span>'}
+    </td>
+  </tr>`;
+}
+
+async function toggleUser(uid, active, btn) {
+  const original = btn.textContent;
+  btn.disabled = true; btn.textContent = '…';
+  try {
+    const res = await fetch(`${API}/api/admin/users/${uid}/active`, {
+      method: 'PATCH', headers: headers(),
+      body: JSON.stringify({active})
+    });
+    if (!res.ok) throw new Error('Failed');
+    loadAllUsers();
+  } catch(e) {
+    btn.disabled = false; btn.textContent = original;
+    alert('Error: ' + e.message);
+  }
+}
+
+// ── INVESTMENTS ───────────────────────────────────────────────────────────
+async function loadAllInvestments() {
+  const el = document.getElementById('investments-table');
+  el.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading…</p></div>';
+  try {
+    const res  = await fetch(`${API}/api/investments`, {headers: headers()});
+    const data = await res.json();
+    const investments = data.data || [];
+    if (!investments.length) {
+      el.innerHTML = '<div class="empty-state"><p>No investments on the platform yet.</p></div>';
+      return;
+    }
+    el.innerHTML = `<table>
+      <thead><tr><th>Farm</th><th>Crop</th><th>Location</th><th>Amount</th><th>Expected Return</th><th>Date</th><th>Status</th></tr></thead>
+      <tbody>${investments.map(i => `<tr>
+        <td style="font-weight:500;">${i.farm_name}</td>
+        <td>${i.crop_type}</td>
+        <td style="font-size:12px;color:var(--muted)">${i.location}</td>
+        <td style="font-family:'DM Mono',monospace;color:var(--accent)">$${i.amount.toLocaleString()}</td>
+        <td style="font-family:'DM Mono',monospace">$${(i.expected_return||0).toLocaleString()}</td>
+        <td style="font-size:12px;color:var(--muted)">${i.invested_at.slice(0,10)}</td>
+        <td><span class="badge badge-green">${i.status}</span></td>
+      </tr>`).join('')}</tbody>
+    </table>`;
+  } catch(e) {
+    el.innerHTML = '<div class="empty-state"><p>Error loading investments.</p></div>';
+  }
+}
+
+// Init
+loadOverview();
+</script>
+</body>
+</html>

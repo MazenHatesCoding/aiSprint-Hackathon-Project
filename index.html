@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Keheilan — Agricultural Investment Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:      #0a110c;
+  --surface: #1a2b1e;
+  --surface2:#223328;
+  --accent:  #4ade80;
+  --accent2: #86efac;
+  --muted:   #6b7c70;
+  --text:    #e8f0e9;
+  --text2:   #a8bfac;
+  --danger:  #f87171;
+  --warning: #fbbf24;
+  --radius:  6px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 48px;height:68px;display:flex;align-items:center;justify-content:space-between;background:rgba(10,17,12,0.92);backdrop-filter:blur(12px);border-bottom:1px solid rgba(74,222,128,0.08);}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.logo-mark{width:34px;height:34px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-weight:700;color:var(--bg);font-size:16px;}
+.logo-name{font-family:'Playfair Display',serif;font-size:18px;font-weight:600;color:var(--text);}
+.logo-sub{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:1px;}
+.nav-links{display:flex;align-items:center;gap:8px;}
+.nav-link{padding:8px 18px;color:var(--text2);font-size:13px;text-decoration:none;border-radius:var(--radius);transition:.2s;}
+.nav-link:hover{color:var(--text);background:rgba(255,255,255,.05);}
+.btn-nav{padding:9px 22px;background:var(--accent);color:var(--bg);border:none;border-radius:var(--radius);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;text-decoration:none;transition:.2s;}
+.btn-nav:hover{background:var(--accent2);}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:120px 48px 80px;position:relative;overflow:hidden;}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 60% 40%,rgba(74,222,128,.07) 0%,transparent 70%);pointer-events:none;}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(74,222,128,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(74,222,128,.04) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;}
+.hero-tag{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(74,222,128,.3);color:var(--accent);font-size:11px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;padding:6px 16px;border-radius:20px;margin-bottom:32px;}
+.tag-dot{width:6px;height:6px;background:var(--accent);border-radius:50%;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(42px,6vw,80px);font-weight:700;line-height:1.05;max-width:800px;margin-bottom:28px;letter-spacing:-.02em;}
+.hero h1 em{font-style:italic;color:var(--accent);}
+.hero-sub{font-size:18px;font-weight:300;color:var(--text2);max-width:560px;line-height:1.75;margin-bottom:48px;}
+.hero-cta{display:flex;gap:16px;flex-wrap:wrap;}
+.btn-primary{padding:16px 36px;background:var(--accent);color:var(--bg);border:none;border-radius:var(--radius);font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;cursor:pointer;text-decoration:none;transition:.2s;display:inline-flex;align-items:center;gap:8px;}
+.btn-primary:hover{background:var(--accent2);transform:translateY(-1px);}
+.btn-outline{padding:16px 36px;background:transparent;color:var(--accent);border:1px solid rgba(74,222,128,.4);border-radius:var(--radius);font-family:'DM Sans',sans-serif;font-size:15px;font-weight:400;cursor:pointer;text-decoration:none;transition:.2s;display:inline-flex;align-items:center;gap:8px;}
+.btn-outline:hover{border-color:var(--accent);background:rgba(74,222,128,.06);}
+.hero-stats{display:flex;gap:48px;margin-top:72px;padding-top:48px;border-top:1px solid rgba(74,222,128,.1);}
+.stat-item{display:flex;flex-direction:column;gap:4px;}
+.stat-value{font-family:'DM Mono',monospace;font-size:28px;color:var(--accent);}
+.stat-label{font-size:12px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;}
+
+/* AI FEATURES */
+.section{padding:100px 48px;max-width:1200px;margin:0 auto;}
+.section-label{font-size:11px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:12px;}
+.section h2{font-family:'Playfair Display',serif;font-size:clamp(32px,4vw,52px);font-weight:600;margin-bottom:20px;line-height:1.15;}
+.section-sub{font-size:16px;color:var(--text2);font-weight:300;max-width:560px;line-height:1.75;margin-bottom:64px;}
+
+.ai-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;}
+@media(max-width:768px){.ai-grid{grid-template-columns:1fr;}}
+.ai-card{background:var(--surface);border:1px solid rgba(74,222,128,.1);border-radius:16px;padding:36px;transition:.3s;position:relative;overflow:hidden;}
+.ai-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0;transition:.3s;}
+.ai-card:hover{border-color:rgba(74,222,128,.25);transform:translateY(-4px);}
+.ai-card:hover::before{opacity:1;}
+.ai-num{font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);letter-spacing:.1em;margin-bottom:16px;}
+.ai-icon{width:48px;height:48px;background:rgba(74,222,128,.1);border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;}
+.ai-card h3{font-family:'Playfair Display',serif;font-size:22px;font-weight:600;margin-bottom:12px;}
+.ai-card p{font-size:14px;color:var(--text2);line-height:1.7;font-weight:300;}
+.ai-badge{display:inline-flex;align-items:center;gap:6px;margin-top:20px;font-size:11px;color:var(--accent);letter-spacing:.06em;}
+
+/* HOW IT WORKS */
+.how-section{padding:100px 48px;background:var(--surface);border-top:1px solid rgba(74,222,128,.07);border-bottom:1px solid rgba(74,222,128,.07);}
+.how-inner{max-width:1100px;margin:0 auto;}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:40px;margin-top:64px;}
+@media(max-width:768px){.steps{grid-template-columns:1fr;}}
+.step{display:flex;flex-direction:column;gap:16px;}
+.step-num{font-family:'DM Mono',monospace;font-size:36px;color:rgba(74,222,128,.25);font-weight:400;}
+.step h3{font-family:'Playfair Display',serif;font-size:20px;font-weight:600;}
+.step p{font-size:14px;color:var(--text2);line-height:1.7;font-weight:300;}
+
+/* CTA SECTION */
+.cta-section{padding:120px 48px;text-align:center;}
+.cta-inner{max-width:600px;margin:0 auto;}
+.cta-inner h2{font-family:'Playfair Display',serif;font-size:clamp(32px,4vw,52px);font-weight:700;margin-bottom:20px;line-height:1.1;}
+.cta-inner p{font-size:16px;color:var(--text2);font-weight:300;line-height:1.75;margin-bottom:40px;}
+.cta-btns{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;}
+
+/* FOOTER */
+footer{padding:40px 48px;border-top:1px solid rgba(74,222,128,.08);display:flex;align-items:center;justify-content:space-between;}
+.footer-copy{font-size:13px;color:var(--muted);}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="/">
+    <div class="logo-mark">K</div>
+    <div>
+      <div class="logo-name">Keheilan</div>
+      <div class="logo-sub">Asset Management</div>
+    </div>
+  </a>
+  <div class="nav-links">
+    <a href="#ai-features" class="nav-link">AI Features</a>
+    <a href="#how-it-works" class="nav-link">How It Works</a>
+    <a href="/login" class="nav-link">Log In</a>
+    <a href="/register" class="btn-nav">Get Started</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-tag">
+    <span class="tag-dot"></span>
+    AI-First Agricultural Investment
+  </div>
+  <h1>Fractional ownership of<br/><em>productive Egyptian land</em></h1>
+  <p class="hero-sub">Invest in curated farm opportunities with AI-powered risk scoring, real-time yield forecasting, and intelligent deal matching — all in one platform.</p>
+  <div class="hero-cta">
+    <a href="/register" class="btn-primary">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 7l5 5-5 5M6 12h12"/></svg>
+      Start Investing
+    </a>
+    <a href="/register?role=operator" class="btn-outline">List Your Farm</a>
+  </div>
+  <div class="hero-stats">
+    <div class="stat-item">
+      <span class="stat-value">4</span>
+      <span class="stat-label">AI Modules</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value">5</span>
+      <span class="stat-label">Live Farm Deals</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value">EGY</span>
+      <span class="stat-label">Focused Market</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value">8–24%</span>
+      <span class="stat-label">Projected ROI Range</span>
+    </div>
+  </div>
+</div>
+
+<!-- AI FEATURES -->
+<div class="section" id="ai-features">
+  <div class="section-label">Intelligence Layer</div>
+  <h2>Four AI modules.<br/>One smart platform.</h2>
+  <p class="section-sub">Every investment decision on Keheilan is backed by live weather data, agronomic benchmarks, and Claude AI analysis.</p>
+
+  <div class="ai-grid">
+    <div class="ai-card">
+      <div class="ai-num">01 / RISK SCORER</div>
+      <div class="ai-icon">
+        <svg width="24" height="24" fill="none" stroke="#4ade80" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+      </div>
+      <h3>Farm Risk Scorer</h3>
+      <p>Submit a farm profile and get an instant AI risk rating with strengths, concerns, and an Approve / Review / Reject recommendation — powered by Claude.</p>
+      <div class="ai-badge">
+        <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>
+        Operator dashboard · Admin review
+      </div>
+    </div>
+    <div class="ai-card">
+      <div class="ai-num">02 / YIELD PREDICTOR</div>
+      <div class="ai-icon">
+        <svg width="24" height="24" fill="none" stroke="#4ade80" stroke-width="1.5" viewBox="0 0 24 24"><path d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/></svg>
+      </div>
+      <h3>Crop Yield Predictor</h3>
+      <p>Combines 16-day live weather from Open-Meteo with agronomic benchmarks. Returns low / expected / high yield ranges and estimated investor returns.</p>
+      <div class="ai-badge">
+        <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>
+        Investor dashboard · Deal pages
+      </div>
+    </div>
+    <div class="ai-card">
+      <div class="ai-num">03 / DEAL MATCHER</div>
+      <div class="ai-icon">
+        <svg width="24" height="24" fill="none" stroke="#4ade80" stroke-width="1.5" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+      </div>
+      <h3>Smart Deal Matcher</h3>
+      <p>Describe your investment goals — budget, risk tolerance, time horizon — and the AI ranks every available farm deal by fit, with personalized reasoning.</p>
+      <div class="ai-badge">
+        <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>
+        Investor dashboard · Deal browser
+      </div>
+    </div>
+    <div class="ai-card">
+      <div class="ai-num">04 / RISK CALCULATOR</div>
+      <div class="ai-icon">
+        <svg width="24" height="24" fill="none" stroke="#4ade80" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+      </div>
+      <h3>Composite Risk Calculator</h3>
+      <p>Five weighted risk categories — climate, operational, financial, market, infrastructure — scored live with real weather data into a single composite score.</p>
+      <div class="ai-badge">
+        <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>
+        Investor dashboard · Farm detail
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<div class="how-section" id="how-it-works">
+  <div class="how-inner">
+    <div class="section-label">Process</div>
+    <h2>How Keheilan works</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <h3>Operators list farms</h3>
+        <p>Farm operators create listings with their crop details, size, target raise, and expected returns. The AI Risk Scorer runs automatically on submission.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <h3>Admin approves listings</h3>
+        <p>Platform administrators review AI risk scores and farm details, then approve or flag listings before they appear to investors.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <h3>Investors commit capital</h3>
+        <p>Investors browse AI-matched deals, review yield forecasts and composite risk scores, then invest directly into approved farm listings.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="cta-section">
+  <div class="cta-inner">
+    <h2>Ready to invest in <em style="font-style:italic;color:var(--accent)">real land</em>?</h2>
+    <p>Join Keheilan and access AI-powered agricultural investments. Operators and investors welcome.</p>
+    <div class="cta-btns">
+      <a href="/register" class="btn-primary">Create Investor Account</a>
+      <a href="/register?role=operator" class="btn-outline">List a Farm</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <span class="footer-copy">© 2024 Keheilan Asset Management · AISprint Hackathon</span>
+  <a href="/login" style="font-size:13px;color:var(--muted);text-decoration:none;">Log in →</a>
+</footer>
+
+</body>
+</html>

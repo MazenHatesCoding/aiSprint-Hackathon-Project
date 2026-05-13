@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Operator Dashboard — Keheilan</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#0a110c;--surface:#1a2b1e;--surface2:#223328;--border:rgba(74,222,128,.1);--accent:#4ade80;--accent2:#86efac;--muted:#6b7c70;--text:#e8f0e9;--text2:#a8bfac;--danger:#f87171;--warning:#fbbf24;--radius:6px;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;}
+.sidebar{width:240px;min-height:100vh;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;overflow-y:auto;}
+.sidebar-logo{padding:24px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.logo-mark{width:32px;height:32px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-weight:700;color:var(--bg);font-size:14px;flex-shrink:0;}
+.logo-name{font-family:'Playfair Display',serif;font-size:16px;font-weight:600;}
+.sidebar-role{padding:12px 20px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--warning);border-bottom:1px solid var(--border);}
+nav{flex:1;padding:12px 0;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:11px 20px;font-size:13px;color:var(--text2);cursor:pointer;transition:.15s;border-left:2px solid transparent;}
+.nav-item:hover{color:var(--text);background:rgba(255,255,255,.03);}
+.nav-item.active{color:var(--accent);border-left-color:var(--accent);background:rgba(74,222,128,.05);}
+.nav-item svg{flex-shrink:0;}
+.sidebar-bottom{padding:16px 20px;border-top:1px solid var(--border);}
+.user-chip{display:flex;align-items:center;gap:10px;}
+.user-avatar{width:32px;height:32px;background:rgba(251,191,36,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:var(--warning);flex-shrink:0;}
+.user-name{font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.user-email{font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.user-id-chip{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:3px;}
+.btn-logout{display:block;width:100%;margin-top:10px;padding:8px;background:transparent;border:1px solid var(--border);border-radius:var(--radius);color:var(--muted);font-size:12px;cursor:pointer;transition:.2s;}
+.btn-logout:hover{border-color:var(--danger);color:var(--danger);}
+.main{flex:1;overflow:auto;display:flex;flex-direction:column;}
+.topbar{padding:20px 36px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.page-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:600;}
+.page-sub{font-size:13px;color:var(--muted);margin-top:2px;}
+.content{padding:32px 36px;flex:1;}
+.section{display:none;animation:fadeIn .25s ease;}
+.section.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.stats-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;}
+.stat-label{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+.stat-value{font-family:'DM Mono',monospace;font-size:26px;color:var(--accent);}
+.stat-sub{font-size:12px;color:var(--text2);margin-top:4px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px;margin-bottom:24px;}
+.card-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:600;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start;}
+.field{margin-bottom:18px;}
+.field label{display:block;font-size:12px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:7px;}
+.field input,.field select,.field textarea{width:100%;padding:10px 14px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:var(--radius);font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);outline:none;transition:.2s;resize:vertical;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:rgba(74,222,128,.35);background:rgba(74,222,128,.03);}
+.field select option{background:var(--surface);}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.btn-primary{width:100%;padding:13px;background:var(--accent);color:var(--bg);border:none;border-radius:var(--radius);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:.2s;margin-top:6px;display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn-primary:hover{background:var(--accent2);}
+.btn-primary:disabled{opacity:.45;cursor:not-allowed;}
+.btn-sm{padding:7px 14px;border-radius:var(--radius);font-size:12px;font-weight:500;cursor:pointer;border:none;transition:.2s;}
+.btn-accent{background:var(--accent);color:var(--bg);}
+.btn-accent:hover{background:var(--accent2);}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text2);}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent);}
+/* ID tag */
+.id-tag{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.15);border-radius:4px;padding:2px 7px;display:inline-block;}
+/* Farm rows */
+.farm-row{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:14px;transition:.2s;}
+.farm-row:hover{border-color:rgba(74,222,128,.2);}
+.farm-row-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;}
+.farm-name{font-family:'Playfair Display',serif;font-size:16px;font-weight:600;}
+.farm-loc{font-size:12px;color:var(--muted);margin-top:2px;}
+.farm-meta{display:flex;gap:16px;margin-bottom:12px;flex-wrap:wrap;align-items:center;}
+.meta-item{font-size:12px;color:var(--text2);}
+.meta-item strong{color:var(--text);font-weight:500;}
+.progress-bar{height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;margin-bottom:5px;}
+.progress-fill{height:100%;background:var(--accent);border-radius:2px;}
+.progress-label{font-size:11px;color:var(--muted);}
+.farm-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500;}
+.badge-green{background:rgba(74,222,128,.12);color:var(--accent);}
+.badge-yellow{background:rgba(251,191,36,.12);color:var(--warning);}
+.badge-red{background:rgba(248,113,113,.12);color:var(--danger);}
+.badge-muted{background:rgba(255,255,255,.06);color:var(--muted);}
+/* AI */
+.ai-result{min-height:200px;}
+.loading{display:flex;flex-direction:column;align-items:center;gap:12px;padding:36px;}
+.spinner{width:30px;height:30px;border:2px solid rgba(74,222,128,.15);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading p{font-size:13px;color:var(--muted);}
+.placeholder{display:flex;flex-direction:column;align-items:center;gap:10px;padding:36px;color:var(--muted);text-align:center;}
+.placeholder svg{opacity:.25;}
+.placeholder p{font-size:13px;font-weight:300;max-width:200px;line-height:1.5;}
+.res-label{font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:16px;margin-bottom:6px;}
+.res-text{font-size:14px;color:var(--text2);line-height:1.65;font-weight:300;}
+.tag-list{display:flex;flex-wrap:wrap;gap:7px;margin-top:6px;}
+.tag{padding:4px 12px;border-radius:20px;font-size:12px;}
+.tag-good{background:rgba(74,222,128,.1);color:var(--accent);}
+.tag-bad{background:rgba(248,113,113,.1);color:var(--danger);}
+.tag-neutral{background:rgba(255,255,255,.06);color:var(--text2);}
+.advisor-box{background:rgba(74,222,128,.06);border:1px solid rgba(74,222,128,.15);border-radius:8px;padding:14px 18px;margin-top:14px;}
+.advisor-box .lbl{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:6px;}
+.advisor-box p{font-size:13px;color:var(--text2);line-height:1.65;font-weight:300;}
+.score-row{display:flex;align-items:center;gap:18px;margin-bottom:14px;}
+.rec-pill{display:inline-block;padding:5px 16px;border-radius:4px;font-size:12px;font-weight:500;}
+.rec-approve{background:rgba(74,222,128,.12);color:var(--accent);}
+.rec-review{background:rgba(251,191,36,.12);color:var(--warning);}
+.rec-reject{background:rgba(248,113,113,.12);color:var(--danger);}
+.report-row{padding:12px 0;border-bottom:1px solid rgba(74,222,128,.05);display:flex;justify-content:space-between;align-items:center;}
+.report-row:last-child{border-bottom:none;}
+.empty-state{text-align:center;padding:48px 20px;color:var(--muted);}
+.empty-state p{font-size:14px;margin-top:8px;font-weight:300;}
+.success-msg{background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.2);color:var(--accent);border-radius:var(--radius);padding:12px 16px;font-size:13px;margin-bottom:16px;display:none;}
+.error-msg{background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);color:var(--danger);border-radius:var(--radius);padding:12px 16px;font-size:13px;margin-bottom:16px;display:none;}
+/* Investor cards */
+.investor-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;}
+.investor-card{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:20px;transition:.2s;position:relative;}
+.investor-card:hover{border-color:rgba(74,222,128,.25);}
+.investor-card.featured{border-color:rgba(74,222,128,.35);background:rgba(74,222,128,.04);}
+.featured-crown{position:absolute;top:12px;right:12px;font-size:11px;color:var(--accent);background:rgba(74,222,128,.1);border-radius:4px;padding:2px 8px;letter-spacing:.06em;}
+.inv-avatar{width:44px;height:44px;background:rgba(74,222,128,.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:600;color:var(--accent);margin-bottom:12px;}
+.inv-card-name{font-size:15px;font-weight:500;margin-bottom:2px;}
+.inv-card-email{font-size:12px;color:var(--muted);margin-bottom:10px;}
+.inv-card-meta{font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.6;}
+/* Send request modal */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;display:none;align-items:center;justify-content:center;}
+.modal-bg.open{display:flex;}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:36px;width:100%;max-width:440px;}
+.modal h3{font-family:'Playfair Display',serif;font-size:20px;margin-bottom:6px;}
+.modal-sub{font-size:13px;color:var(--text2);margin-bottom:24px;}
+.modal-actions{display:flex;gap:10px;margin-top:20px;}
+.btn-cancel{flex:1;padding:11px;background:transparent;border:1px solid var(--border);border-radius:var(--radius);color:var(--text2);font-size:13px;cursor:pointer;}
+.btn-confirm{flex:1;padding:11px;background:var(--accent);border:none;border-radius:var(--radius);color:var(--bg);font-size:13px;font-weight:500;cursor:pointer;}
+.sent-requests-list{margin-top:24px;}
+.sent-req-row{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px 18px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;}
+.sent-req-info{font-size:13px;}
+.sent-req-meta{font-size:11px;color:var(--muted);margin-top:3px;}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">K</div>
+    <div class="logo-name">Keheilan</div>
+  </div>
+  <div class="sidebar-role">Farm Operator</div>
+  <nav>
+    <div class="nav-item active" onclick="showSection('overview',this)">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+      Overview
+    </div>
+    <div class="nav-item" onclick="showSection('my-farms',this)">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M3 7l9-4 9 4M3 7v10l9 4 9-4V7M3 7l9 4 9-4M12 11v10"/></svg>
+      My Farms
+    </div>
+    <div class="nav-item" onclick="showSection('list-farm',this)">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+      List New Farm
+    </div>
+    <div class="nav-item" onclick="showSection('explore',this)">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+      Explore Investors
+    </div>
+    <div class="nav-item" onclick="showSection('sent-requests',this)">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+      Sent Requests
+    </div>
+    <div class="nav-item" onclick="showSection('reports',this)">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+      Reports
+    </div>
+    <div class="nav-item" onclick="showSection('ai-scorer',this)">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+      AI Risk Scorer
+    </div>
+  </nav>
+  <div class="sidebar-bottom">
+    <div class="user-chip">
+      <div class="user-avatar" id="user-avatar">O</div>
+      <div style="min-width:0;">
+        <div class="user-name" id="user-name">Loading…</div>
+        <div class="user-email" id="user-email"></div>
+        <div class="user-id-chip" id="user-id-chip"></div>
+      </div>
+    </div>
+    <button class="btn-logout" onclick="logout()">Sign Out</button>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div>
+      <div class="page-title" id="page-title">Operator Overview</div>
+      <div class="page-sub" id="page-sub">Manage your farms and capital</div>
+    </div>
+  </div>
+  <div class="content">
+
+    <!-- OVERVIEW -->
+    <div class="section active" id="sec-overview">
+      <div class="stats-strip">
+        <div class="stat-card"><div class="stat-label">Total Farms</div><div class="stat-value" id="stat-farms">0</div><div class="stat-sub">listed on platform</div></div>
+        <div class="stat-card"><div class="stat-label">Capital Raised</div><div class="stat-value" id="stat-raised">$0</div><div class="stat-sub">across all farms</div></div>
+        <div class="stat-card"><div class="stat-label">Pending Review</div><div class="stat-value" id="stat-pending">0</div><div class="stat-sub">awaiting admin approval</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Your Farms <span style="font-family:'DM Sans';font-size:13px;color:var(--muted);font-weight:400;" id="overview-farm-count"></span></div>
+        <div id="overview-farms"><div class="loading"><div class="spinner"></div><p>Loading…</p></div></div>
+      </div>
+    </div>
+
+    <!-- MY FARMS -->
+    <div class="section" id="sec-my-farms">
+      <div id="my-farms-list"><div class="loading"><div class="spinner"></div><p>Loading your farms…</p></div></div>
+    </div>
+
+    <!-- LIST FARM -->
+    <div class="section" id="sec-list-farm">
+      <div class="two-col">
+        <div class="card">
+          <div class="card-title">List a New Farm</div>
+          <div class="success-msg" id="list-success">Farm listed! Pending admin review. Your farm ID will appear in My Farms.</div>
+          <div class="error-msg" id="list-error"></div>
+          <div class="field"><label>Farm Name</label><input type="text" id="f-name" placeholder="e.g. Nile Basin Wheat Estate"/></div>
+          <div class="field-row">
+            <div class="field"><label>Location</label><input type="text" id="f-location" placeholder="City, Region"/></div>
+            <div class="field"><label>Crop Type</label>
+              <select id="f-crop"><option>Wheat</option><option>Rice</option><option>Corn</option><option>Dates</option><option>Strawberries</option><option>Herbs & Spices</option><option>Cotton</option><option>Sugarcane</option></select>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>Size (Feddan)</label><input type="number" id="f-size" value="50" min="1"/></div>
+            <div class="field"><label>Duration (months)</label><input type="number" id="f-duration" value="12" min="1"/></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>Target Raise (USD)</label><input type="number" id="f-target" value="100000" min="1000"/></div>
+            <div class="field"><label>Expected ROI %</label><input type="number" id="f-roi" value="14" step="0.5" min="1"/></div>
+          </div>
+          <div class="field"><label>Description</label><textarea id="f-desc" rows="3" placeholder="Brief description of the farm, infrastructure, market…"></textarea></div>
+          <button class="btn-primary" id="list-btn" onclick="listFarm()">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+            Submit Listing
+          </button>
+        </div>
+        <div class="card">
+          <div class="card-title">Listing Guidelines</div>
+          <div style="font-size:13px;color:var(--text2);line-height:1.8;font-weight:300;">
+            <p style="margin-bottom:12px;">Your listing will go through admin review before investors can see it. Once approved, your Farm ID will be visible to investors who can search by it.</p>
+            <ul style="padding-left:18px;display:flex;flex-direction:column;gap:8px;">
+              <li>Provide an accurate, detailed description</li>
+              <li>Set a realistic ROI — overpromising leads to rejection</li>
+              <li>Run the <strong style="color:var(--text);">AI Risk Scorer</strong> first to understand your risk profile</li>
+              <li>Keep target raise proportional to farm size</li>
+            </ul>
+            <div style="margin-top:20px;padding:14px;background:rgba(74,222,128,.06);border:1px solid rgba(74,222,128,.12);border-radius:8px;">
+              <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:6px;">After Listing</div>
+              Your Farm ID is displayed in My Farms. Share it with investors or use Explore to send them a direct request.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXPLORE INVESTORS -->
+    <div class="section" id="sec-explore">
+      <div class="card" style="margin-bottom:24px;">
+        <div class="card-title">Explore Investors</div>
+        <p style="font-size:13px;color:var(--text2);margin-bottom:24px;font-weight:300;">Browse platform investors and send them a direct farm offer. Click <strong style="color:var(--text);">Send Request</strong> on any card.</p>
+        <div id="investor-grid"><div class="loading"><div class="spinner"></div><p>Loading investors…</p></div></div>
+      </div>
+    </div>
+
+    <!-- SENT REQUESTS -->
+    <div class="section" id="sec-sent-requests">
+      <div class="card">
+        <div class="card-title">Sent Requests</div>
+        <div id="sent-requests-list"><div class="loading"><div class="spinner"></div><p>Loading…</p></div></div>
+      </div>
+    </div>
+
+    <!-- REPORTS -->
+    <div class="section" id="sec-reports">
+      <div class="two-col">
+        <div class="card">
+          <div class="card-title">Submit Performance Report</div>
+          <div class="success-msg" id="report-success">Report submitted successfully.</div>
+          <div class="error-msg" id="report-error"></div>
+          <div class="field"><label>Farm</label>
+            <select id="r-farm"><option value="">— select a farm —</option></select>
+          </div>
+          <div class="field"><label>Reporting Period</label><input type="text" id="r-period" placeholder="e.g. Q1 2024 / March 2024"/></div>
+          <div class="field-row">
+            <div class="field"><label>Yield (kg)</label><input type="number" id="r-yield" placeholder="0"/></div>
+            <div class="field"><label>Revenue (USD)</label><input type="number" id="r-revenue" placeholder="0"/></div>
+          </div>
+          <div class="field"><label>Expenses (USD)</label><input type="number" id="r-expenses" placeholder="0"/></div>
+          <div class="field"><label>Notes</label><textarea id="r-notes" rows="3" placeholder="Seasonal conditions, issues, highlights…"></textarea></div>
+          <button class="btn-primary" onclick="submitReport()">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Submit Report
+          </button>
+        </div>
+        <div class="card">
+          <div class="card-title">Recent Reports</div>
+          <div id="reports-list"><div class="empty-state"><p>Select a farm to view reports.</p></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI RISK SCORER -->
+    <div class="section" id="sec-ai-scorer">
+      <div class="two-col">
+        <div class="card">
+          <div class="card-title">🤖 AI Farm Risk Scorer</div>
+          <div class="field"><label>Farm Name</label><input type="text" id="rs-name" value="My Farm"/></div>
+          <div class="field-row">
+            <div class="field"><label>Location</label><input type="text" id="rs-location" value="Kafr el-Sheikh, Egypt"/></div>
+            <div class="field"><label>Crop Type</label>
+              <select id="rs-crop"><option>Wheat</option><option>Rice</option><option>Corn</option><option>Dates</option><option>Strawberries</option><option>Herbs & Spices</option><option>Cotton</option></select>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>Size (hectares)</label><input type="number" id="rs-size" value="50" min="1"/></div>
+            <div class="field"><label>Years Operating</label><input type="number" id="rs-years" value="5" min="0"/></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>Annual Revenue (USD)</label><input type="number" id="rs-revenue" value="150000"/></div>
+            <div class="field"><label>Soil Quality</label>
+              <select id="rs-soil"><option>good</option><option>excellent</option><option>average</option><option>poor</option></select>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field" style="display:flex;align-items:center;gap:10px;padding-top:22px;">
+              <input type="checkbox" id="rs-irrigation" checked style="width:auto;accent-color:var(--accent);"/>
+              <label style="text-transform:none;font-size:13px;letter-spacing:0;margin:0;">Has irrigation</label>
+            </div>
+            <div class="field" style="display:flex;align-items:center;gap:10px;padding-top:22px;">
+              <input type="checkbox" id="rs-defaults" style="width:auto;accent-color:var(--accent);"/>
+              <label style="text-transform:none;font-size:13px;letter-spacing:0;margin:0;">Previous defaults</label>
+            </div>
+          </div>
+          <div class="field"><label>Certifications (comma-separated)</label><input type="text" id="rs-certs" value="GlobalG.A.P" placeholder="e.g. Organic, ISO 22000"/></div>
+          <button class="btn-primary" onclick="runRiskScorer()">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3"/></svg>
+            Score My Farm Risk
+          </button>
+        </div>
+        <div class="card ai-result" id="rs-result">
+          <div class="card-title">Risk Assessment</div>
+          <div class="placeholder">
+            <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1" viewBox="0 0 24 24"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531"/></svg>
+            <p>Submit your farm profile to get an AI risk rating</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Send Request Modal -->
+<div class="modal-bg" id="req-modal">
+  <div class="modal">
+    <h3>Send Investment Request</h3>
+    <p class="modal-sub" id="req-modal-sub">Sending offer to investor</p>
+    <div class="field"><label>Select Your Farm</label>
+      <select id="req-farm-select"><option value="">— pick a farm —</option></select>
+    </div>
+    <div class="field"><label>Message to Investor</label>
+      <textarea id="req-message" rows="4" placeholder="Introduce your farm and why this is a good opportunity…" style="resize:vertical;"></textarea>
+    </div>
+    <div id="req-modal-error" style="color:var(--danger);font-size:13px;display:none;margin-top:8px;"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeReqModal()">Cancel</button>
+      <button class="btn-confirm" onclick="sendRequest()">Send Request</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = '';
+const token = localStorage.getItem('kh_token');
+const userStr = localStorage.getItem('kh_user');
+if (!token) location.href = '/login';
+
+const user = userStr ? JSON.parse(userStr) : {};
+if (user.role && user.role !== 'operator') location.href = '/' + user.role;
+
+document.getElementById('user-name').textContent  = user.full_name || 'Operator';
+document.getElementById('user-email').textContent = user.email || '';
+document.getElementById('user-avatar').textContent = (user.full_name||'O')[0].toUpperCase();
+if (user.id) document.getElementById('user-id-chip').textContent = 'Operator ID: ' + user.id;
+
+let myFarms = [];
+let targetInvestorId = null;
+
+function headers() {
+  return {'Content-Type':'application/json','Authorization':'Bearer '+token};
+}
+function logout() { localStorage.clear(); location.href='/login'; }
+
+const pageTitles = {
+  overview:        ['Operator Overview','Your farm portfolio at a glance'],
+  'my-farms':      ['My Farms','All your listed farms and their IDs'],
+  'list-farm':     ['List New Farm','Submit a new farm for investor funding'],
+  explore:         ['Explore Investors','Find and contact platform investors'],
+  'sent-requests': ['Sent Requests','Track your outreach to investors'],
+  reports:         ['Performance Reports','Submit seasonal reports for your farms'],
+  'ai-scorer':     ['AI Risk Scorer','Check your farm risk before listing'],
+};
+
+function showSection(id, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  if (el) el.classList.add('active');
+  const t = pageTitles[id]||['Dashboard',''];
+  document.getElementById('page-title').textContent = t[0];
+  document.getElementById('page-sub').textContent   = t[1];
+  if (id==='overview')        loadOverview();
+  if (id==='my-farms')        loadMyFarms();
+  if (id==='explore')         loadExplorePage();
+  if (id==='sent-requests')   loadSentRequests();
+  if (id==='reports')         loadFarmsForReports();
+}
+
+// ── FARMS ─────────────────────────────────────────────────────────────────
+async function fetchMyFarms() {
+  const res  = await fetch(`${API}/api/farms`, {headers:headers()});
+  const data = await res.json();
+  myFarms = data.data || [];
+  return myFarms;
+}
+
+async function loadOverview() {
+  const farms = await fetchMyFarms();
+  document.getElementById('stat-farms').textContent   = farms.length;
+  document.getElementById('stat-raised').textContent  = '$'+farms.reduce((s,f)=>s+f.raised_so_far,0).toLocaleString();
+  document.getElementById('stat-pending').textContent = farms.filter(f=>f.status==='pending').length;
+  document.getElementById('overview-farm-count').textContent = farms.length+' total';
+  const el = document.getElementById('overview-farms');
+  if (!farms.length) {
+    el.innerHTML = '<div class="empty-state"><p>No farms listed yet. <a href="#" onclick="showSection(\'list-farm\')" style="color:var(--accent)">List your first farm →</a></p></div>';
+    return;
+  }
+  el.innerHTML = farms.map(f => farmRowHTML(f, false)).join('');
+}
+
+async function loadMyFarms() {
+  const el = document.getElementById('my-farms-list');
+  el.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading…</p></div>';
+  const farms = await fetchMyFarms();
+  if (!farms.length) { el.innerHTML = '<div class="empty-state"><p>No farms listed yet.</p></div>'; return; }
+  el.innerHTML = farms.map(f => farmRowHTML(f, true)).join('');
+}
+
+function statusBadge(s) {
+  const map = {pending:'badge-yellow',approved:'badge-green',active:'badge-green',closed:'badge-muted',flagged:'badge-red'};
+  return `<span class="badge ${map[s]||'badge-muted'}">${s}</span>`;
+}
+
+function farmRowHTML(f, detailed=false) {
+  const pct = f.target_raise>0 ? Math.min(100,Math.round((f.raised_so_far/f.target_raise)*100)) : 0;
+  const riskBadge = f.risk_label ? `<span class="badge ${f.risk_label==='Low'?'badge-green':f.risk_label==='High'?'badge-red':'badge-yellow'}">${f.risk_label} Risk</span>` : '';
+  return `<div class="farm-row">
+    <div class="farm-row-header">
+      <div>
+        <div class="farm-name">${f.name}</div>
+        <div class="farm-loc">${f.location} · ${f.crop_type}</div>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end;">
+        <span class="id-tag">Farm ID: ${f.id}</span>
+        ${statusBadge(f.status)}${riskBadge}
+        <span style="font-family:'DM Mono',monospace;font-size:16px;color:var(--accent)">${f.expected_roi}% ROI</span>
+      </div>
+    </div>
+    <div class="farm-meta">
+      <div class="meta-item"><strong>${f.size_feddan}</strong> feddan</div>
+      <div class="meta-item"><strong>${f.duration_months}</strong> months</div>
+      <div class="meta-item">Target: <strong>$${f.target_raise.toLocaleString()}</strong></div>
+      <div class="meta-item">Raised: <strong>$${f.raised_so_far.toLocaleString()}</strong></div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+    <div class="progress-label">${pct}% funded</div>
+    ${detailed ? `<div class="farm-actions">
+      <button class="btn-sm btn-ghost" onclick="loadReportsForFarm(${f.id},'${f.name.replace(/'/g,"\\'")}')">View Reports</button>
+      <button class="btn-sm btn-ghost" onclick="prefillScorer('${f.name.replace(/'/g,"\\'")}','${f.location}','${f.crop_type}',${f.size_feddan})">Score Risk</button>
+    </div>` : ''}
+  </div>`;
+}
+
+// ── LIST FARM ─────────────────────────────────────────────────────────────
+async function listFarm() {
+  const successEl = document.getElementById('list-success');
+  const errorEl   = document.getElementById('list-error');
+  const btn       = document.getElementById('list-btn');
+  successEl.style.display='none'; errorEl.style.display='none';
+  const body = {
+    name:            document.getElementById('f-name').value.trim(),
+    location:        document.getElementById('f-location').value.trim(),
+    crop_type:       document.getElementById('f-crop').value,
+    size_feddan:     parseFloat(document.getElementById('f-size').value),
+    target_raise:    parseFloat(document.getElementById('f-target').value),
+    expected_roi:    parseFloat(document.getElementById('f-roi').value),
+    duration_months: parseInt(document.getElementById('f-duration').value),
+    description:     document.getElementById('f-desc').value.trim()
+  };
+  if (!body.name||!body.location) { errorEl.textContent='Farm name and location are required.'; errorEl.style.display='block'; return; }
+  btn.disabled=true;
+  btn.innerHTML='<span style="display:inline-block;width:14px;height:14px;border:2px solid rgba(10,17,12,.3);border-top-color:var(--bg);border-radius:50%;animation:spin .7s linear infinite;margin-right:6px;"></span>Submitting…';
+  try {
+    const res  = await fetch(`${API}/api/farms`, {method:'POST', headers:headers(), body:JSON.stringify(body)});
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail||'Failed to list farm');
+    successEl.textContent = `Farm listed! Farm ID: ${data.data.id} — pending admin review.`;
+    successEl.style.display='block';
+    ['f-name','f-location','f-desc'].forEach(id=>document.getElementById(id).value='');
+  } catch(e) { errorEl.textContent=e.message; errorEl.style.display='block'; }
+  finally { btn.disabled=false; btn.innerHTML='<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>Submit Listing'; }
+}
+
+// ── EXPLORE INVESTORS ─────────────────────────────────────────────────────
+// Featured investor (hardcoded, as per spec)
+const FEATURED_INVESTOR = {
+  id: 'FEATURED',
+  full_name: 'Keheilan Capital Partner',
+  email: 'capital@keheilan.com',
+  bio: 'Strategic early-stage agricultural investor. Focuses on Nile Delta crops, sustainable farming, and 3–7 year fractional land plays. Has deployed $2M+ across 14 Egyptian farms.',
+  focus: 'Nile Delta · Fractional Land · 3–7yr',
+  featured: true,
+};
+
+async function loadExplorePage() {
+  const el = document.getElementById('investor-grid');
+  el.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading investors…</p></div>';
+  try {
+    const investors = (await (await fetch(`${API}/api/investors`, {headers:headers()})).json()).data || [];
+    const cards = [
+      investorCard(FEATURED_INVESTOR),
+      ...investors
+        .filter(i => i.id !== user.id)
+        .map(i => investorCard(i))
+    ].join('');
+    el.innerHTML = `<div class="investor-grid">${cards || '<div class="empty-state"><p>No other investors yet.</p></div>'}</div>`;
+  } catch(e) {
+    el.innerHTML = '<div class="empty-state"><p>Error: '+e.message+'</p></div>';
+  }
+}
+
+function investorCard(inv) {
+  const initials = (inv.full_name||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  const idLabel = inv.featured ? '' : `<div class="id-tag" style="margin-bottom:8px;">Investor ID: ${inv.id}</div>`;
+  const meta = inv.featured
+    ? `<div class="inv-card-meta">${inv.bio}</div><div style="font-size:11px;color:var(--accent);margin-bottom:14px;">${inv.focus}</div>`
+    : `<div class="inv-card-meta">Member since ${(inv.created_at||'').slice(0,10)||'—'}</div>`;
+  const sendBtn = inv.featured
+    ? `<button class="btn-sm btn-ghost" disabled style="opacity:.4;cursor:default;">Contact via Platform</button>`
+    : `<button class="btn-sm btn-accent" onclick="openReqModal(${inv.id},'${inv.full_name.replace(/'/g,"\\'")}')">Send Request</button>`;
+  return `<div class="investor-card ${inv.featured?'featured':''}">
+    ${inv.featured ? '<div class="featured-crown">⭐ Featured</div>' : ''}
+    <div class="inv-avatar">${initials}</div>
+    <div class="inv-card-name">${inv.full_name}</div>
+    <div class="inv-card-email">${inv.email}</div>
+    ${idLabel}
+    ${meta}
+    ${sendBtn}
+  </div>`;
+}
+
+// ── SEND REQUEST MODAL ────────────────────────────────────────────────────
+function openReqModal(investorId, investorName) {
+  targetInvestorId = investorId;
+  document.getElementById('req-modal-sub').textContent = `Sending offer to: ${investorName} (ID: ${investorId})`;
+  document.getElementById('req-modal-error').style.display = 'none';
+  document.getElementById('req-message').value = '';
+  // populate farm dropdown
+  const sel = document.getElementById('req-farm-select');
+  const farms = myFarms.length ? myFarms : [];
+  sel.innerHTML = '<option value="">— pick a farm —</option>' +
+    farms.map(f=>`<option value="${f.id}">[ID:${f.id}] ${f.name} (${f.status})</option>`).join('');
+  document.getElementById('req-modal').classList.add('open');
+}
+
+function closeReqModal() {
+  document.getElementById('req-modal').classList.remove('open');
+  targetInvestorId = null;
+}
+
+async function sendRequest() {
+  const farmId  = parseInt(document.getElementById('req-farm-select').value);
+  const message = document.getElementById('req-message').value.trim();
+  const errEl   = document.getElementById('req-modal-error');
+  errEl.style.display = 'none';
+
+  if (!farmId)   { errEl.textContent='Please select a farm.'; errEl.style.display='block'; return; }
+  if (!message)  { errEl.textContent='Please write a message.'; errEl.style.display='block'; return; }
+  if (!targetInvestorId) return;
+
+  try {
+    const res  = await fetch(`${API}/api/requests`, {
+      method:'POST', headers:headers(),
+      body: JSON.stringify({investor_id:targetInvestorId, farm_id:farmId, message})
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail||'Failed to send request');
+    closeReqModal();
+    alert('✅ Request sent successfully!');
+  } catch(e) { errEl.textContent=e.message; errEl.style.display='block'; }
+}
+
+// ── SENT REQUESTS ─────────────────────────────────────────────────────────
+async function loadSentRequests() {
+  const el = document.getElementById('sent-requests-list');
+  el.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading…</p></div>';
+  try {
+    const reqs = (await (await fetch(`${API}/api/requests`, {headers:headers()})).json()).data || [];
+    if (!reqs.length) { el.innerHTML = '<div class="empty-state"><p>No requests sent yet. Go to Explore Investors to send your first offer.</p></div>'; return; }
+    el.innerHTML = reqs.map(r => `
+      <div class="sent-req-row">
+        <div>
+          <div class="sent-req-info"><strong>${r.farm_name}</strong> → <strong>${r.investor_name}</strong></div>
+          <div class="sent-req-meta">Investor ID: ${r.investor_id} · Farm ID: ${r.farm_id} · Sent: ${r.created_at.slice(0,10)}</div>
+          <div class="sent-req-meta" style="margin-top:4px;font-style:italic;color:var(--muted);">"${r.message||''}"</div>
+        </div>
+        <span class="badge ${r.status==='accepted'?'badge-green':r.status==='declined'?'badge-red':r.status==='seen'?'badge-yellow':'badge-muted'}">${r.status}</span>
+      </div>`).join('');
+  } catch(e) { el.innerHTML = '<div class="empty-state"><p>Error: '+e.message+'</p></div>'; }
+}
+
+// ── REPORTS ───────────────────────────────────────────────────────────────
+async function loadFarmsForReports() {
+  const sel = document.getElementById('r-farm');
+  const farms = myFarms.length ? myFarms : await fetchMyFarms();
+  sel.innerHTML = '<option value="">— select a farm —</option>' +
+    farms.map(f=>`<option value="${f.id}">[ID:${f.id}] ${f.name}</option>`).join('');
+  sel.onchange = () => loadReportsForFarm(parseInt(sel.value));
+}
+
+async function loadReportsForFarm(farmId, farmName) {
+  if (!farmId) return;
+  const el = document.getElementById('reports-list');
+  el.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading reports…</p></div>';
+  try {
+    const reports = (await (await fetch(`${API}/api/reports/${farmId}`, {headers:headers()})).json()).data || [];
+    if (!reports.length) { el.innerHTML=`<div class="empty-state"><p>No reports yet${farmName?' for '+farmName:''}.</p></div>`; return; }
+    el.innerHTML = reports.map(r=>`
+      <div class="report-row">
+        <div>
+          <div style="font-size:14px;font-weight:500;">${r.period}</div>
+          <div style="font-size:12px;color:var(--muted);">${r.notes||'No notes'}</div>
+        </div>
+        <div style="text-align:right;font-family:'DM Mono',monospace;font-size:13px;color:var(--accent);">
+          ${r.revenue?'$'+r.revenue.toLocaleString():'—'}<br/>
+          <span style="font-size:11px;color:var(--muted);">${r.yield_kg?r.yield_kg.toLocaleString()+' kg':''}</span>
+        </div>
+      </div>`).join('');
+  } catch(e) { el.innerHTML='<div class="empty-state"><p>Error loading reports.</p></div>'; }
+}
+
+async function submitReport() {
+  const successEl=document.getElementById('report-success'), errorEl=document.getElementById('report-error');
+  successEl.style.display='none'; errorEl.style.display='none';
+  const farmId = parseInt(document.getElementById('r-farm').value);
+  if (!farmId) { errorEl.textContent='Please select a farm.'; errorEl.style.display='block'; return; }
+  const body = {
+    farm_id:  farmId,
+    period:   document.getElementById('r-period').value.trim(),
+    yield_kg: parseFloat(document.getElementById('r-yield').value)||null,
+    revenue:  parseFloat(document.getElementById('r-revenue').value)||null,
+    expenses: parseFloat(document.getElementById('r-expenses').value)||null,
+    notes:    document.getElementById('r-notes').value.trim()
+  };
+  if (!body.period) { errorEl.textContent='Please enter a reporting period.'; errorEl.style.display='block'; return; }
+  try {
+    const res = await fetch(`${API}/api/reports`, {method:'POST', headers:headers(), body:JSON.stringify(body)});
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail||'Failed to submit report');
+    successEl.style.display='block';
+    loadReportsForFarm(farmId);
+  } catch(e) { errorEl.textContent=e.message; errorEl.style.display='block'; }
+}
+
+// ── AI RISK SCORER ────────────────────────────────────────────────────────
+function prefillScorer(name, location, crop, size) {
+  document.getElementById('rs-name').value     = name;
+  document.getElementById('rs-location').value = location;
+  document.getElementById('rs-size').value     = size;
+  const sel = document.getElementById('rs-crop');
+  for (let i=0;i<sel.options.length;i++) { if (sel.options[i].value===crop||sel.options[i].text===crop) { sel.selectedIndex=i; break; } }
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('sec-ai-scorer').classList.add('active');
+  document.getElementById('page-title').textContent='AI Risk Scorer';
+  document.getElementById('page-sub').textContent='Check your farm risk before listing';
+}
+
+async function runRiskScorer() {
+  const el = document.getElementById('rs-result');
+  el.innerHTML='<div class="card-title">Risk Assessment</div><div class="loading"><div class="spinner"></div><p>AI is analyzing your farm…</p></div>';
+  const certs = document.getElementById('rs-certs').value.split(',').map(s=>s.trim()).filter(Boolean);
+  const body = {
+    farm_name:          document.getElementById('rs-name').value,
+    location:           document.getElementById('rs-location').value,
+    crop_type:          document.getElementById('rs-crop').value,
+    farm_size_hectares: parseFloat(document.getElementById('rs-size').value),
+    years_in_operation: parseInt(document.getElementById('rs-years').value),
+    annual_revenue_usd: parseFloat(document.getElementById('rs-revenue').value),
+    irrigation:         document.getElementById('rs-irrigation').checked,
+    soil_quality:       document.getElementById('rs-soil').value,
+    previous_defaults:  document.getElementById('rs-defaults').checked,
+    certifications:     certs
+  };
+  try {
+    const res  = await fetch(`${API}/api/risk-score`, {method:'POST', headers:headers(), body:JSON.stringify(body)});
+    const data = await res.json();
+    if (!data.success) throw new Error(data.detail);
+    const d=data.data, score=d.risk_score;
+    const color=score<=35?'var(--accent)':score<=65?'var(--warning)':'var(--danger)';
+    const circ=2*Math.PI*36;
+    const recClass=d.recommendation==='Approve'?'rec-approve':d.recommendation==='Reject'?'rec-reject':'rec-review';
+    el.innerHTML=`<div class="card-title">Risk Assessment</div>
+      <div class="score-row">
+        <svg width="88" height="88" viewBox="0 0 88 88">
+          <circle cx="44" cy="44" r="36" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="5"/>
+          <circle cx="44" cy="44" r="36" fill="none" stroke="${color}" stroke-width="5"
+            stroke-dasharray="${(score/100)*circ} ${circ}" stroke-dashoffset="${circ/4}" stroke-linecap="round"/>
+          <text x="44" y="44" text-anchor="middle" dominant-baseline="central" font-family="DM Mono,monospace" font-size="18" fill="${color}">${score}</text>
+        </svg>
+        <div><div style="font-size:16px;font-weight:500;">${d.risk_rating} Risk</div><div class="rec-pill ${recClass}" style="margin-top:8px;">${d.recommendation}</div></div>
+      </div>
+      <div class="res-label">Summary</div><div class="res-text">${d.summary}</div>
+      <div class="res-label">Strengths</div>
+      <div class="tag-list">${(d.strengths||[]).map(s=>`<span class="tag tag-good">${s}</span>`).join('')}</div>
+      <div class="res-label">Concerns</div>
+      <div class="tag-list">${(d.concerns||[]).map(c=>`<span class="tag tag-bad">${c}</span>`).join('')}</div>
+      <div class="advisor-box"><div class="lbl">Recommendation</div><p>${d.recommendation_reasoning}</p></div>`;
+  } catch(e) {
+    el.innerHTML='<div class="card-title">Risk Assessment</div><div style="color:var(--danger);padding:20px;font-size:13px;">Error: '+e.message+'</div>';
+  }
+}
+
+// ensure farms are loaded before explore/request modal needs them
+async function init() {
+  await loadOverview();
+}
+init();
+</script>
+</body>
+</html>
